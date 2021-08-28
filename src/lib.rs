@@ -10,6 +10,28 @@ use core::panic::PanicInfo;
 pub mod serial;
 pub mod vga_buffer;
 
+use core::fmt;
+
+pub struct Green(pub &'static str);
+pub struct Red(pub &'static str);
+
+impl fmt::Display for Green {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\x1B[32m")?; // prefix code
+        write!(f, "{}", self.0)?;
+        write!(f, "\x1B[0m")?; // postfix code
+        Ok(())
+    }
+}
+impl fmt::Display for Red {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\x1B[31m")?; // prefix code
+        write!(f, "{}", self.0)?;
+        write!(f, "\x1B[0m")?; // postfix code
+        Ok(())
+    }
+}
+
 pub trait Testable {
     fn run(&self) -> ();
 }
@@ -21,7 +43,7 @@ where
     fn run(&self) {
         serial_print!("{}...\t", core::any::type_name::<T>());
         self();
-        serial_println!("[ok]");
+        serial_println!("{}", Green("[ok]"));
     }
 }
 
@@ -35,7 +57,7 @@ pub fn test_runner(tests: &[&dyn Testable]) {
 
 pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
-    serial_println!("Error: {}\n", info);
+    serial_println!("{} {}\n", Red("Error:"), info);
     exit_qemu(QemuExitCode::Failed);
     loop {}
 }

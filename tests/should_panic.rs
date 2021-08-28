@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 
-use blog_os::{exit_qemu, serial_print, serial_println, QemuExitCode};
+use blog_os::{exit_qemu, serial_print, serial_println, Green, QemuExitCode};
 use core::panic::PanicInfo;
 
 #[no_mangle]
@@ -19,7 +19,7 @@ fn should_fail() {
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    serial_println!("[ok]");
+    serial_println!("{}", Green("[ok]"));
     exit_qemu(QemuExitCode::Success);
     loop {}
 }
