@@ -12,6 +12,7 @@ pub mod vga_buffer;
 
 use core::fmt;
 
+// TODO: Move into crate for TERMOUT/ or at least mod?
 pub struct Green(pub &'static str);
 pub struct Red(pub &'static str);
 
