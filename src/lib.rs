@@ -74,6 +74,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 pub fn init() {
     gdt::init();
     interrupts::init_idt();
+    interrupts::init_pic();
 }
 
 // Test Entry Point

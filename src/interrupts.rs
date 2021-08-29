@@ -3,6 +3,15 @@ use crate::println;
 use lazy_static::lazy_static;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 
+use pic8259::ChainedPics;
+use spin;
+
+pub const PIC_1_OFFSET: u8 = 32;
+pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
+
+static PICS: spin::Mutex<ChainedPics> =
+    spin::Mutex::new(unsafe { ChainedPics::new(PIC_1_OFFSET, PIC_2_OFFSET) }); // may have to be made public
+
 lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
         let mut idt = InterruptDescriptorTable::new();
@@ -17,6 +26,10 @@ lazy_static! {
     };
 }
 
+pub fn init_pic() {
+    unsafe { PICS.lock().initialize() }; // should this move inte interrupts::init?
+}
+
 pub fn init_idt() {
     IDT.load();
 }
@@ -26,16 +39,6 @@ extern "x86-interrupt" fn double_fault_handler(
     _error_code: u64,
 ) -> ! {
     panic!("EXCEPTION: DOUBLE_FAULT\n{:#?}", stack_frame);
-}
-
-extern "x86-interrupt" fn page_fault_handler(
-    stack_frame: InterruptStackFrame,
-    error_code: PageFaultErrorCode,
-) {
-    println!(
-        "EXCEPTION: PAGE_FAULT\n{:#?} {:#?}",
-        stack_frame, error_code
-    );
 }
 
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
