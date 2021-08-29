@@ -75,6 +75,7 @@ pub fn init() {
     gdt::init();
     interrupts::init_idt();
     interrupts::init_pic();
+    x86_64::instructions::interrupts::enable(); // should this move into interrupts?
 }
 
 // Test Entry Point
