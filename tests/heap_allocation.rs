@@ -32,3 +32,39 @@ fn simple_allocation() {
     assert_eq!(*heap_value_1, 41);
     assert_eq!(*heap_value_2, 13);
 }
+
+#[test_case]
+fn large_vec() {
+    use alloc::vec::Vec;
+    let n = 1000;
+    let mut vec = Vec::new();
+    for i in 0..n {
+        vec.push(i);
+    }
+    assert_eq!(vec.iter().sum::<u64>(), (n - 1) * n / 2);
+}
+
+#[test_case]
+fn many_large_vecs() {
+    use alloc::vec::Vec;
+    let n = 100;
+    let m = 100;
+    for _i in 0..n {
+        let mut vec = Vec::new();
+        for j in 0..m {
+            vec.push(j);
+        }
+        assert_eq!(vec.iter().sum::<u64>(), (n - 1) * n / 2);
+    }
+}
+
+use blog_os::allocator::HEAP_SIZE;
+
+#[test_case]
+fn many_boxes() {
+    use alloc::boxed::Box;
+    for i in 0..2 * HEAP_SIZE {
+        let x = Box::new(i);
+        assert_eq!(*x, i);
+    }
+}
