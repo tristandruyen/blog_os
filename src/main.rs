@@ -12,19 +12,36 @@ use core::panic::PanicInfo;
 entry_point!(kernel_main);
 
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    println!("Hello World{}", "!");
+    use blog_os::memory;
+    use x86_64::{structures::paging::Translate, VirtAddr};
 
+    println!("Hello World{}", "!");
     blog_os::init();
 
-    use x86_64::registers::control::Cr3;
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    // new: initialize a mapper
+    let mapper = unsafe { memory::init(phys_mem_offset) };
 
-    let (level_4_page_table, _) = Cr3::read();
-    println!("Level 4 page table at: {:?}",
-             level_4_page_table.start_address());
+    let addresses = [// the identity-mapped vga buffer page
+                     0xb8000,
+                     // some code page
+                     0x201008,
+                     // some stack page
+                     0x0100_0020_1a10,
+                     // virtual address mapped to physical address 0
+                     boot_info.physical_memory_offset];
+
+    for &address in &addresses {
+        let virt = VirtAddr::new(address);
+        // new: use the `mapper.translate_addr` method
+        let phys = mapper.translate_addr(virt);
+        println!("{:?} -> {:?}", virt, phys);
+    }
 
     #[cfg(test)]
     test_main();
 
+    println!("It did not crash!");
     blog_os::hlt_loop();
 }
 
