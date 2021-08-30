@@ -48,7 +48,7 @@ impl fmt::Display for Red {
 }
 
 pub trait Testable {
-    fn run(&self) -> ();
+    fn run(&self);
 }
 
 impl<T> Testable for T where T: Fn() {

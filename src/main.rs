@@ -14,7 +14,7 @@ entry_point!(kernel_main);
 
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
     use blog_os::allocator; // new import
-    println!("Hello World{}", "!");
+    println!("Hello World!");
     blog_os::init();
 
     allocator::init_kernel_heap(boot_info);
