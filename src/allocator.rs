@@ -1,5 +1,5 @@
-use alloc::alloc::{GlobalAlloc, Layout};
-use core::ptr::null_mut;
+use crate::{memory, memory::BootInfoFrameAllocator};
+use bootloader::BootInfo;
 use linked_list_allocator::LockedHeap;
 use x86_64::{
     structures::paging::{
@@ -41,4 +41,25 @@ pub fn init_heap(mapper: &mut impl Mapper<Size4KiB>,
     }
 
     Ok(())
+}
+
+pub fn init_kernel_heap(boot_info: &'static BootInfo) {
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+
+    let mut mapper = unsafe { memory::init(phys_mem_offset) };
+    let mut frame_allocator =
+        unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+
+    // new
+    init_heap(&mut mapper, &mut frame_allocator)
+        .expect("heap initialization failed");
+}
+
+#[test_case]
+fn simple_allocation() {
+    use alloc::boxed::Box;
+    let heap_value_1 = Box::new(41);
+    let heap_value_2 = Box::new(13);
+    assert_eq!(*heap_value_1, 41);
+    assert_eq!(*heap_value_2, 13);
 }
