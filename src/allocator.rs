@@ -1,5 +1,4 @@
 use bootloader::BootInfo;
-use linked_list_allocator::LockedHeap;
 use x86_64::{
     structures::paging::{
         mapper::MapToError,
@@ -12,11 +11,31 @@ use x86_64::{
     VirtAddr,
 };
 
+pub mod bump;
+
 pub const HEAP_START: usize = 0x_4444_4444_0000;
 pub const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
 
+pub struct Locked<A> {
+    inner: spin::Mutex<A>,
+}
+
+impl<A> Locked<A> {
+    pub const fn new(inner: A) -> Self {
+        Locked { inner: spin::Mutex::new(inner), }
+    }
+
+    pub fn lock(&self) -> spin::MutexGuard<A> { self.inner.lock() }
+}
+
+// use linked_list_allocator::LockedHeap;
+// #[global_allocator]
+// static ALLOCATOR: LockedHeap = LockedHeap::empty();
+
+use bump::BumpAllocator;
+
 #[global_allocator]
-static ALLOCATOR: LockedHeap = LockedHeap::empty();
+static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
 
 pub fn init_heap(mapper: &mut impl Mapper<Size4KiB>,
                  frame_allocator: &mut impl FrameAllocator<Size4KiB>)
@@ -55,11 +74,12 @@ pub fn init_kernel_heap(boot_info: &'static BootInfo) {
         .expect("heap initialization failed");
 }
 
+fn align_up(addr: usize, align: usize) -> usize {
+    (addr + align - 1) & !(align - 1)
+}
+
 #[test_case]
-fn simple_allocation() {
-    use alloc::boxed::Box;
-    let heap_value_1 = Box::new(41);
-    let heap_value_2 = Box::new(13);
-    assert_eq!(*heap_value_1, 41);
-    assert_eq!(*heap_value_2, 13);
+fn test_align_up() {
+    assert_eq!(align_up(1024, 512), 1024);
+    assert_eq!(align_up(123, 512), 512);
 }
