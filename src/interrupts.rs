@@ -19,10 +19,12 @@ pub enum InterruptIndex {
     Keyboard,
 }
 
-impl InterruptIndex {
-    fn as_u8(self) -> u8 { self as u8 }
+impl From<InterruptIndex> for u8 {
+    fn from(index: InterruptIndex) -> u8 { index as u8 }
+}
 
-    fn as_usize(self) -> usize { usize::from(self.as_u8()) }
+impl From<InterruptIndex> for usize {
+    fn from(index: InterruptIndex) -> usize { usize::from(index.into(): u8) }
 }
 
 static PICS: spin::Mutex<ChainedPics> =
@@ -39,9 +41,9 @@ lazy_static! {
                .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
         }
 
-        idt[InterruptIndex::Timer.as_usize()].set_handler_fn(timer_interrupt_handler);
+        idt[InterruptIndex::Timer.into()].set_handler_fn(timer_interrupt_handler);
 
-        idt[InterruptIndex::Keyboard.as_usize()].set_handler_fn(keyboard_interrupt_handler);
+        idt[InterruptIndex::Keyboard.into()].set_handler_fn(keyboard_interrupt_handler);
 
         idt
     };
@@ -75,7 +77,7 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFr
 
     unsafe {
         PICS.lock()
-            .notify_end_of_interrupt(InterruptIndex::Timer.as_u8());
+            .notify_end_of_interrupt(InterruptIndex::Timer.into());
     }
 }
 
@@ -113,7 +115,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
 
     unsafe {
         PICS.lock()
-            .notify_end_of_interrupt(InterruptIndex::Keyboard.as_u8());
+            .notify_end_of_interrupt(InterruptIndex::Keyboard.into());
     }
 }
 
