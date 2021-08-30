@@ -1,4 +1,3 @@
-use crate::{memory, memory::BootInfoFrameAllocator};
 use bootloader::BootInfo;
 use linked_list_allocator::LockedHeap;
 use x86_64::{
@@ -44,6 +43,7 @@ pub fn init_heap(mapper: &mut impl Mapper<Size4KiB>,
 }
 
 pub fn init_kernel_heap(boot_info: &'static BootInfo) {
+    use crate::{memory, memory::BootInfoFrameAllocator};
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
 
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
