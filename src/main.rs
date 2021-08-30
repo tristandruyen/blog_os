@@ -30,6 +30,4 @@ fn panic(info: &PanicInfo) -> ! {
 
 #[cfg(test)]
 #[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    blog_os::test_panic_handler(info)
-}
+fn panic(info: &PanicInfo) -> ! { blog_os::test_panic_handler(info) }

@@ -42,10 +42,7 @@ pub trait Testable {
     fn run(&self) -> ();
 }
 
-impl<T> Testable for T
-where
-    T: Fn(),
-{
+impl<T> Testable for T where T: Fn() {
     fn run(&self) {
         serial_print!("{}...\t", core::any::type_name::<T>());
         self();
@@ -101,9 +98,7 @@ pub fn hlt_loop() -> ! {
 // //////////
 #[cfg(test)]
 #[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    test_panic_handler(info)
-}
+fn panic(info: &PanicInfo) -> ! { test_panic_handler(info) }
 // Exit
 // //////////
 

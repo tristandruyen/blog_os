@@ -14,9 +14,7 @@ pub extern "C" fn _start() -> ! {
 use core::panic::PanicInfo;
 
 #[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    blog_os::test_panic_handler(info)
-}
+fn panic(info: &PanicInfo) -> ! { blog_os::test_panic_handler(info) }
 
 use blog_os::println;
 

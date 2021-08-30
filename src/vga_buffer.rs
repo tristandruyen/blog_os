@@ -98,10 +98,8 @@ impl Writer {
     }
 
     fn clear_row(&mut self, row: usize) {
-        let blank = ScreenChar {
-            ascii_character: b' ',
-            color_code: self.color_code,
-        };
+        let blank = ScreenChar { ascii_character: b' ',
+                                 color_code: self.color_code, };
         for col in 0..BUFFER_WIDTH {
             self.buffer.chars[row][col].write(blank);
         }
@@ -121,11 +119,11 @@ use lazy_static::lazy_static;
 use spin::Mutex;
 
 lazy_static! {
-    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
-        column_position: 0,
-        color_code: ColorCode::new(Color::Yellow, Color::Black),
-        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    });
+    pub static ref WRITER: Mutex<Writer> =
+        Mutex::new(Writer { column_position: 0,
+                            color_code: ColorCode::new(Color::Yellow,
+                                                       Color::Black),
+                            buffer: unsafe { &mut *(0xb8000 as *mut Buffer) }, });
 }
 
 #[macro_export]
