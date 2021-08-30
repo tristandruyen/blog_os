@@ -21,6 +21,7 @@ pub mod gdt;
 pub mod interrupts;
 pub mod memory;
 pub mod serial;
+pub mod task;
 pub mod vga_buffer;
 
 // Test Running & Formatting
@@ -28,7 +29,7 @@ pub mod vga_buffer;
 
 use core::fmt;
 
-// TODO: Move into crate for TERMOUT/ or at least mod?
+// TODO: Move into mod for termout / or at least serial?
 pub struct Green(pub &'static str);
 pub struct Red(pub &'static str);
 
