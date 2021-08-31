@@ -32,8 +32,10 @@ fn panic(info: &PanicInfo) -> ! { blog_os::test_panic_handler(info) }
 entry_point!(kernel_main);
 fn grey_screen(boot_info: &'static mut BootInfo) {
     if let Some(framebuffer) = boot_info.framebuffer.as_mut() {
+        let mut value = 0x90;
         for byte in framebuffer.buffer_mut() {
-            *byte = 0x90;
+            *byte = value;
+            value = value.wrapping_add(1);
         }
     }
 }
