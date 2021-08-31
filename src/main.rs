@@ -30,8 +30,16 @@ fn panic(info: &PanicInfo) -> ! { blog_os::test_panic_handler(info) }
 
 // EntryPoint
 entry_point!(kernel_main);
+fn grey_screen(boot_info: &'static mut BootInfo) {
+    if let Some(framebuffer) = boot_info.framebuffer.as_mut() {
+        for byte in framebuffer.buffer_mut() {
+            *byte = 0x90;
+        }
+    }
+}
 
 fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
+    grey_screen(boot_info);
     blog_os::hlt_loop();
     blog_os::init();
     allocator::init_kernel_heap(boot_info);
