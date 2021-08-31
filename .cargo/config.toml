@@ -1,9 +1,13 @@
 [build]
-target = "x86_64-blog_os.json"
+# target = "x86_64-blog_os.json"
+[alias]
+kbuild = """build --target x86_64-blog_os.json -Z build-std=core,compiler_builtins,alloc \
+    -Z build-std-features=compiler-builtins-mem"""
+kimg = """run --package boot"""
 
 [unstable]
-build-std-features = ["compiler-builtins-mem"]
-build-std = ["core", "compiler_builtins", "alloc"]
+# build-std-features = ["compiler-builtins-mem"]
+# build-std = ["core", "compiler_builtins", "alloc"]
 
 [target.'cfg(target_os = "none")']
-runner = "bootimage runner"
+# runner = "bootimage runner"

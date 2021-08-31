@@ -31,15 +31,16 @@ fn panic(info: &PanicInfo) -> ! { blog_os::test_panic_handler(info) }
 // EntryPoint
 entry_point!(kernel_main);
 
-fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    println!("Hello World!");
+fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
+    blog_os::hlt_loop();
     blog_os::init();
     allocator::init_kernel_heap(boot_info);
 
+    // println!("Hello World!");
     #[cfg(test)]
     test_main();
 
-    println!("It did not crash!");
+    // println!("It did not crash!");
 
     let mut executor = Executor::new();
     executor.spawn(Task::new(example_task()));
