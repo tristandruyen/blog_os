@@ -2,7 +2,7 @@
 
 ### Relevant Branches
 - `main` branch is Basically the newest version of the blog
-- `uefi_support` is my current state of porting everything to the newest version
+- `uefi-support` is my current state of porting everything to the newest version
 of the bootloader crate, which enables UEFI.
 
 Currently this only produces a grey screen.
