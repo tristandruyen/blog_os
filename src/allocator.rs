@@ -65,11 +65,14 @@ pub fn init_heap(mapper: &mut impl Mapper<Size4KiB>,
 
 pub fn init_kernel_heap(boot_info: &'static BootInfo) {
     use crate::{memory, memory::BootInfoFrameAllocator};
-    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let phys_mem_offset = match boot_info.physical_memory_offset {
+        bootloader::boot_info::Optional::Some(offset) => VirtAddr::new(offset),
+        bootloader::boot_info::Optional::None => panic!("No offset given"),
+    };
 
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
     let mut frame_allocator =
-        unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+        unsafe { BootInfoFrameAllocator::init(&boot_info.memory_regions) };
 
     // new
     init_heap(&mut mapper, &mut frame_allocator)

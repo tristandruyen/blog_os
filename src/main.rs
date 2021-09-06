@@ -30,16 +30,27 @@ fn panic(info: &PanicInfo) -> ! { blog_os::test_panic_handler(info) }
 
 // EntryPoint
 entry_point!(kernel_main);
+fn grey_screen(boot_info: &'static mut BootInfo) {
+    if let Some(framebuffer) = boot_info.framebuffer.as_mut() {
+        let mut value = 0x90;
+        for byte in framebuffer.buffer_mut() {
+            *byte = value;
+            value = value.wrapping_add(1);
+        }
+    }
+}
 
-fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    println!("Hello World!");
+fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
+    grey_screen(boot_info);
+    blog_os::hlt_loop();
     blog_os::init();
     allocator::init_kernel_heap(boot_info);
 
+    // println!("Hello World!");
     #[cfg(test)]
     test_main();
 
-    println!("It did not crash!");
+    // println!("It did not crash!");
 
     let mut executor = Executor::new();
     executor.spawn(Task::new(example_task()));
